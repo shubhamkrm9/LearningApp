@@ -1,0 +1,100 @@
+name: Security Pipeline
+
+on:
+  push:
+    branches: [ "main", "release" ]
+  pull_request:
+    branches: [ "main", "release" ]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # 1. SECRET SCANNING (TruffleHog)
+  secret-scanning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: TruffleHog Secret Scanner
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified # Catch active AWS, Play Integrity JSON, P8 keys
+
+  # 2. SAST: Semgrep
+  semgrep-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "p/default p/javascript p/typescript p/react p/nodejs"
+          generateSarif: "1"
+
+  # 3. SAST: CodeQL (Data Flow Analysis)
+  codeql-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'javascript, typescript'
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # 4. SLSA BUILD PROVENANCE & SBOM
+  build-provenance:
+    runs-on: ubuntu-latest
+    needs: [secret-scanning, semgrep-sast, codeql-sast]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate SBOM (CycloneDX)
+        run: |
+          npx @cyclonedx/cyclonedx-npm --output-file bom.json
+          
+      - name: Build Android APK (Mock)
+        run: |
+          # This represents your secure release build process
+          # cd android && ./gradlew assembleRelease
+          echo "Mock APK Build" > app-release.apk
+          
+      - name: Generate SLSA Provenance Hash
+        run: |
+          APK_HASH=$(sha256sum app-release.apk | awk '{print $1}')
+          COMMIT_HASH=${{ github.sha }}
+          RUN_ID=${{ github.run_id }}
+          
+          echo "=== BUILD PROVENANCE ===" > slsa-provenance.txt
+          echo "Commit: $COMMIT_HASH" >> slsa-provenance.txt
+          echo "Build ID: $RUN_ID" >> slsa-provenance.txt
+          echo "APK SHA-256: $APK_HASH" >> slsa-provenance.txt
+          echo "SBOM Attached: YES" >> slsa-provenance.txt
+          
+          cat slsa-provenance.txt
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: secure-release
+          path: |
+            app-release.apk
+            bom.json
+            slsa-provenance.txt

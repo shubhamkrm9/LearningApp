@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "data": {
+    "certificateId": "cert_12345",
+    "certificateUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    "issuedAt": "2026-06-01T12:00:00Z"
+  }
+}

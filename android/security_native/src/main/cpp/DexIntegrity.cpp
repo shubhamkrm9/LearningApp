@@ -1,0 +1,160 @@
+#include "DexIntegrity.h"
+#include "ExpectedHashes.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <zlib.h>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+#include "sha256.h"
+
+bool readAndHashClassesDex(const char* apkPath, std::string& outHash) {
+    // Open the APK
+    FILE* fp = fopen(apkPath, "rb");
+    if (!fp) return false;
+
+    SHA256_CTX sha256;
+    sha256_init(&sha256);
+
+    // Because writing a full native zip decompressor from scratch in one file is complex,
+    // we use a simplified approach: we scan the file for the PK zip signatures.
+    // In production, you would embed `minizip` or use `libzip`.
+    
+    // For the sake of this implementation, we will hash the ENTIRE APK as a proxy for the DEX files,
+    // UNLESS we want to write 400 lines of ZIP parsing code here.
+    // However, the user specifically requested "classes*.dex enumeration".
+    // I will write a small zip directory parser.
+
+    fseek(fp, 0, SEEK_END);
+    long fileSize = ftell(fp);
+    
+    // Find EOCD
+    long searchStart = fileSize - 65536;
+    if (searchStart < 0) searchStart = 0;
+    
+    fseek(fp, searchStart, SEEK_SET);
+    std::vector<uint8_t> buffer(fileSize - searchStart);
+    fread(buffer.data(), 1, buffer.size(), fp);
+    
+    int eocdOffset = -1;
+    for (int i = buffer.size() - 22; i >= 0; i--) {
+        if (buffer[i] == 0x50 && buffer[i+1] == 0x4B && buffer[i+2] == 0x05 && buffer[i+3] == 0x06) {
+            eocdOffset = i;
+            break;
+        }
+    }
+    
+    if (eocdOffset == -1) {
+        fclose(fp);
+        return false;
+    }
+    
+    uint32_t cdOffset = *(uint32_t*)&buffer[eocdOffset + 16];
+    uint16_t cdRecords = *(uint16_t*)&buffer[eocdOffset + 10];
+    
+    fseek(fp, cdOffset, SEEK_SET);
+    for (int i = 0; i < cdRecords; i++) {
+        uint32_t magic;
+        fread(&magic, 1, 4, fp);
+        if (magic != 0x02014B50) break; // Central directory signature
+        
+        fseek(fp, 6, SEEK_CUR); // skip version
+        uint16_t method;
+        fread(&method, 1, 2, fp);
+        fseek(fp, 8, SEEK_CUR); // skip time/crc
+        
+        uint32_t compSize, uncompSize;
+        fread(&compSize, 1, 4, fp);
+        fread(&uncompSize, 1, 4, fp);
+        
+        uint16_t nameLen, extraLen, commentLen;
+        fread(&nameLen, 1, 2, fp);
+        fread(&extraLen, 1, 2, fp);
+        fread(&commentLen, 1, 2, fp);
+        
+        fseek(fp, 8, SEEK_CUR); // skip disk/attr
+        uint32_t localHeaderOffset;
+        fread(&localHeaderOffset, 1, 4, fp);
+        
+        std::string name(nameLen, '\0');
+        fread(&name[0], 1, nameLen, fp);
+        
+        fseek(fp, extraLen + commentLen, SEEK_CUR);
+        
+        if (name.find("classes") == 0 && name.find(".dex") != std::string::npos) {
+            // Found a dex file.
+            long currentPos = ftell(fp);
+            
+            // Go to local file header
+            fseek(fp, localHeaderOffset + 26, SEEK_SET);
+            uint16_t localNameLen, localExtraLen;
+            fread(&localNameLen, 1, 2, fp);
+            fread(&localExtraLen, 1, 2, fp);
+            fseek(fp, localNameLen + localExtraLen, SEEK_CUR);
+            
+            // Read compressed data
+            std::vector<uint8_t> compData(compSize);
+            fread(compData.data(), 1, compSize, fp);
+            
+            if (method == 0) {
+                // STORED (uncompressed)
+                sha256_update(&sha256, compData.data(), compSize);
+            } else if (method == 8) {
+                // DEFLATED
+                std::vector<uint8_t> uncompData(uncompSize);
+                z_stream strm;
+                strm.zalloc = Z_NULL;
+                strm.zfree = Z_NULL;
+                strm.opaque = Z_NULL;
+                strm.avail_in = compSize;
+                strm.next_in = compData.data();
+                inflateInit2(&strm, -MAX_WBITS);
+                strm.avail_out = uncompSize;
+                strm.next_out = uncompData.data();
+                inflate(&strm, Z_FINISH);
+                inflateEnd(&strm);
+                
+                sha256_update(&sha256, uncompData.data(), uncompSize);
+            }
+            
+            // Return to central directory
+            fseek(fp, currentPos, SEEK_SET);
+        }
+    }
+    
+    fclose(fp);
+    
+    uint8_t hashResult[32];
+    sha256_final(&sha256, hashResult);
+    
+    char hex[65];
+    for (int i = 0; i < 32; i++) {
+        sprintf(&hex[i * 2], "%02x", hashResult[i]);
+    }
+    hex[64] = '\0';
+    outHash = std::string(hex);
+    
+    return true;
+}
+
+bool verifyDexIntegrity(const char* apkPath) {
+    if (apkPath == nullptr || strlen(apkPath) == 0) {
+        return false;
+    }
+
+    std::string calculatedHash;
+    if (!readAndHashClassesDex(apkPath, calculatedHash)) {
+        return false; // Failed to parse APK
+    }
+
+    // Compare with the expected hash generated by CI/CD
+    if (calculatedHash != EXPECTED_DEX_HASH) {
+        // Tampered!
+        return false;
+    }
+
+    return true;
+}

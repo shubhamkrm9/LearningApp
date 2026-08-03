@@ -1,0 +1,12 @@
+apply plugin: 'com.android.library'
+android {
+    ndkVersion rootProject.ext.ndkVersion
+    compileSdk rootProject.ext.compileSdkVersion
+    namespace "com.learningapp.securitynative"
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        externalNativeBuild { cmake { cppFlags "-std=c++17"; arguments "-DANDROID_STL=c++_shared" } }
+    }
+    externalNativeBuild { cmake { path "src/main/cpp/CMakeLists.txt" } }
+}

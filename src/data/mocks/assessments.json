@@ -1,0 +1,76 @@
+{
+  "assessment_1": {
+    "success": true,
+    "data": {
+      "id": "assessment_1",
+      "passingPercentage": 75,
+      "questions": [
+        {
+          "id": "q1_1",
+          "type": "SCQ",
+          "question": "React Native is developed by which company?",
+          "options": ["Google", "Meta", "Amazon", "Microsoft"],
+          "correctAnswers": ["Meta"]
+        },
+        {
+          "id": "q1_2",
+          "type": "MCQ",
+          "question": "Which of the following are valid React Native core components?",
+          "options": ["View", "Div", "Text", "Span", "ScrollView"],
+          "correctAnswers": ["View", "Text", "ScrollView"]
+        },
+        {
+          "id": "q1_3",
+          "type": "TRUE_FALSE",
+          "question": "React Native uses a single thread for both UI rendering and JavaScript execution.",
+          "options": ["True", "False"],
+          "correctAnswers": ["False"]
+        },
+        {
+          "id": "q1_4",
+          "type": "SCQ",
+          "question": "What command creates a new React Native project?",
+          "options": ["npx create-react-app", "npx react-native init", "npm init react-native", "yarn create rn-app"],
+          "correctAnswers": ["npx react-native init"]
+        },
+        {
+          "id": "q1_5",
+          "type": "SCQ",
+          "question": "Which hook is used to manage component state in React Native?",
+          "options": ["useEffect", "useState", "useContext", "useReducer"],
+          "correctAnswers": ["useState"]
+        }
+      ]
+    }
+  },
+  "assessment_2": {
+    "success": true,
+    "data": {
+      "id": "assessment_2",
+      "passingPercentage": 75,
+      "questions": [
+        {
+          "id": "q2_1",
+          "type": "SCQ",
+          "question": "What function is used to create a Redux store with Redux Toolkit?",
+          "options": ["createStore", "configureStore", "buildStore", "makeStore"],
+          "correctAnswers": ["configureStore"]
+        },
+        {
+          "id": "q2_2",
+          "type": "MCQ",
+          "question": "Which of the following are features of Redux Toolkit?",
+          "options": ["createSlice", "createAsyncThunk", "useState", "configureStore"],
+          "correctAnswers": ["createSlice", "createAsyncThunk", "configureStore"]
+        },
+        {
+          "id": "q2_3",
+          "type": "TRUE_FALSE",
+          "question": "RTK Query is built on top of Redux Toolkit and provides data fetching capabilities.",
+          "options": ["True", "False"],
+          "correctAnswers": ["True"]
+        }
+      ]
+    }
+  }
+}

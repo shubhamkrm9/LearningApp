@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "react-native"
+        versions: ["< 0.81"] # Example: ignore older breaking changes if necessary
+        
+  - package-ecosystem: "npm"
+    directory: "/backend-reference"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

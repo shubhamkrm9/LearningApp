@@ -1,0 +1,87 @@
+{
+  "module_1": {
+    "success": true,
+    "data": {
+      "id": "module_1",
+      "title": "React Native Fundamentals",
+      "completionPercentage": 72,
+      "videos": [
+        {
+          "id": "video_1",
+          "title": "What is React Native?",
+          "duration": 25,
+          "watchedPercentage": 100,
+          "isCompleted": true,
+          "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        },
+        {
+          "id": "video_2",
+          "title": "Project Setup",
+          "duration": 30,
+          "watchedPercentage": 50,
+          "isCompleted": false,
+          "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+        }
+      ],
+      "assessment": {
+        "id": "assessment_1",
+        "isUnlocked": true,
+        "passingPercentage": 75
+      }
+    }
+  },
+  "module_2": {
+    "success": true,
+    "data": {
+      "id": "module_2",
+      "title": "Redux Toolkit Mastery",
+      "completionPercentage": 0,
+      "videos": [
+        {
+          "id": "video_3",
+          "title": "Redux Toolkit Architecture",
+          "duration": 20,
+          "watchedPercentage": 0,
+          "isCompleted": false,
+          "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+        },
+        {
+          "id": "video_4",
+          "title": "RTK Query Deep Dive",
+          "duration": 25,
+          "watchedPercentage": 0,
+          "isCompleted": false,
+          "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+        }
+      ],
+      "assessment": {
+        "id": "assessment_2",
+        "isUnlocked": false,
+        "passingPercentage": 75
+      }
+    }
+  },
+  "module_3": {
+    "success": true,
+    "data": {
+      "id": "module_3",
+      "title": "Advanced TypeScript",
+      "completionPercentage": 0,
+      "videos": [
+        {
+          "id": "video_5",
+          "title": "Generics & Conditional Types",
+          "duration": 30,
+          "watchedPercentage": 0,
+          "isCompleted": false,
+          "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
+        }
+      ],
+      "assessment": {
+        "id": "assessment_3",
+        "isUnlocked": false,
+        "passingPercentage": 75
+      }
+    }
+  }
+}

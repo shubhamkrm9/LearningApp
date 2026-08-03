@@ -1,0 +1,47 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "module_1",
+      "title": "React Native Fundamentals",
+      "description": "Master the core concepts of React Native development including components, props, state, and styling.",
+      "totalVideos": 2,
+      "completedVideos": 2,
+      "completionPercentage": 72,
+      "isLocked": false,
+      "isCompleted": false,
+      "duration": "8 Hours",
+      "lessonsCount": 18,
+      "difficulty": "Beginner",
+      "category": "Mobile"
+    },
+    {
+      "id": "module_2",
+      "title": "Redux Toolkit Mastery",
+      "description": "Deep dive into state management with Redux Toolkit, RTK Query, and advanced patterns.",
+      "totalVideos": 2,
+      "completedVideos": 0,
+      "completionPercentage": 0,
+      "isLocked": false,
+      "isCompleted": false,
+      "duration": "8h 15m",
+      "lessonsCount": 12,
+      "difficulty": "Advanced",
+      "category": "Frontend"
+    },
+    {
+      "id": "module_3",
+      "title": "Advanced TypeScript",
+      "description": "Generics, conditional types, mapped types, and advanced type inference patterns.",
+      "totalVideos": 3,
+      "completedVideos": 0,
+      "completionPercentage": 0,
+      "isLocked": true,
+      "isCompleted": false,
+      "duration": "10h 45m",
+      "lessonsCount": 15,
+      "difficulty": "Advanced",
+      "category": "Frontend"
+    }
+  ]
+}

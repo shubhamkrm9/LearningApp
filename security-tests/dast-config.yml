@@ -1,0 +1,44 @@
+# OWASP ZAP Automated Full Scan Configuration
+# This file is used to configure an authenticated ZAP scan against the backend API.
+
+env:
+  contexts:
+    - name: "LearningApp_Backend"
+      urls:
+        - "http://localhost:3000"
+      includePaths:
+        - "http://localhost:3000/.*"
+      authentication:
+        method: "script"
+        parameters:
+          scriptName: "JWT_Auth_Script.js"
+      sessionManagement:
+        method: "headers"
+        parameters:
+          Authorization: "Bearer {%access_token%}"
+          X-Device-ID: "device-dast-scanner"
+      users:
+        - name: "ZAP_Scanner_Account"
+          credentials:
+            username: "dast_test_user"
+            password: "SecurePassword123!"
+
+jobs:
+  - type: spider
+    parameters:
+      context: "LearningApp_Backend"
+      user: "ZAP_Scanner_Account"
+      maxDuration: 10
+      
+  - type: activeScan
+    parameters:
+      context: "LearningApp_Backend"
+      user: "ZAP_Scanner_Account"
+      policy: "Default Policy"
+      delayInMs: 100 # Respect basic rate limiting or the scan will fail immediately
+
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: /zap/wrk
+      reportTitle: "LearningApp ZAP DAST Report"
