@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: TruffleHog Secret Scanner
@@ -32,7 +32,7 @@ jobs:
   semgrep-sast:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
@@ -43,7 +43,7 @@ jobs:
   codeql-sast:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [secret-scanning, semgrep-sast, codeql-sast]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
